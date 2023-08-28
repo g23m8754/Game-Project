@@ -33,15 +33,28 @@ public class GamePanel extends JPanel implements KeyListener {
             //setPreferredSize(new Dimension(700, 400));
             setFocusable(true);
             addKeyListener(this);
+            //addKeyListener(paddle1);
+            //addKeyListener(paddle2);
         }
 
         // Moves the ball by changing coordinates
         public void moveBall() {
             ball.x += xVelocity;
             ball.y += yVelocity;
+            paddle1.Move();
+            paddle2.Move();
         }
 
         public void Collision() {
+            // Check if paddle goes off screen
+            if (paddle1.y <= 0)
+                paddle1.y = 0;
+            if (paddle1.y + paddle1.height >= getHeight())
+                paddle1.y = getHeight() - paddle1.height;
+            if (paddle2.y <= 0)
+                paddle2.y = 0;
+            if (paddle2.y + paddle2.height >= getHeight())
+                paddle2.y = getHeight() - paddle2.height;
             // Resets the ball and paddle positions when ball goes out of bounds
             if (ball.x + 20 > getWidth() || ball.x < 0) {
                 ball.x = 395;
@@ -98,38 +111,55 @@ public class GamePanel extends JPanel implements KeyListener {
         public void keyPressed(KeyEvent e) {
             // TODO Auto-generated method stub
             switch (e.getKeyCode()) {
-                // Move the left paddle up when the up arrow is pressed
+                    // Move the left paddle up when the up arrow is pressed
                 case KeyEvent.VK_UP:
-                    if (paddle2.getY() > 0) {
-                        paddle2.y -= 35; // Move up
-                    }
+                    paddle2.yDirection(-7);
+                    paddle2.Move(); // Move up
                     break;
                 case KeyEvent.VK_DOWN:
-                // Move the left paddle down when the down arrow is pressed
-                    if (paddle2.getY() + paddle2.height < getHeight()) {
-                        paddle2.y += 35; // Move down
-                    }
+                    // Move the left paddle down when the down arrow is pressed
+                    paddle2.yDirection(7);
+                    paddle2.Move(); // Move down
                     break;
                 case KeyEvent.VK_W:
-                // Move the right paddle up when the w button is pressed
-                    if (paddle1.getY() > 0) {
-                        paddle1.y -= 35; // Move up
-                    }
+                    // Move the right paddle up when the w button is pressed
+                    paddle1.yDirection(-7);
+                    paddle1.Move(); // Move up
                     break;
                 case KeyEvent.VK_S:
-                // Move the right paddle down when the s button is pressed
-                    if (paddle1.getY() + paddle2.height < getHeight()) {
-                        paddle1.y += 35; // Move down
-                    }
+                    // Move the right paddle down when the s button is pressed
+                    paddle1.yDirection(7);
+                    paddle1.Move(); // Move down
                     break;
             }
-            repaint(); // Redraw the panel after moving the rectangle
         }
 
         @Override
         public void keyReleased(KeyEvent e) {
             // TODO Auto-generated method stub
             System.out.println(e.getKeyCode());
+            switch (e.getKeyCode()) {
+                    // Right paddle stops moving when the up arrow is released
+                case KeyEvent.VK_UP:
+                    paddle2.yDirection(0);
+                    paddle2.Move();
+                    break;
+                case KeyEvent.VK_DOWN:
+                    // Left paddle stops moving when the down arrow is released
+                    paddle2.yDirection(0);
+                    paddle2.Move();
+                    break;
+                case KeyEvent.VK_W:
+                    // Right paddle stops moving when the w button is released
+                    paddle1.yDirection(0);
+                    paddle1.Move();
+                    break;
+                case KeyEvent.VK_S:
+                    // Left paddle stops moving when the s button is released
+                    paddle1.yDirection(0);
+                    paddle1.Move();
+                    break;
+            }
         }
 
     }
