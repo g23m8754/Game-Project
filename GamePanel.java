@@ -29,6 +29,8 @@ public class GamePanel extends JPanel implements KeyListener {
         int xVelocity = Velocity;  // Horizontal velocity of ball
         int yVelocity = Velocity;  // Vertical velocity of ball
         
+        boolean running = false;
+
         GamePanel() {
             paddle1 = new Paddle(0, 200, 13, 100, Color.red);
             paddle2 = new Paddle(775, 200, 25, 100, Color.blue);
@@ -191,6 +193,10 @@ public class GamePanel extends JPanel implements KeyListener {
                     // Left paddle stops moving when the s button is released
                     paddle1.yDirection(0);
                     paddle1.Move();
+                    break;
+                case KeyEvent.VK_ESCAPE:
+                    running = true;
+                    setVisible(false);
                     break;
             }
         }
