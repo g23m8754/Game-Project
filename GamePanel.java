@@ -79,6 +79,8 @@ public class GamePanel extends JPanel implements KeyListener {
             add(Score2);
             setFocusable(true);
             addKeyListener(this);
+
+            playMusic(0);
         }
 
         // Moves the ball by changing coordinates and calls the move method from Paddle
