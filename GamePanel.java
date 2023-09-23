@@ -2,10 +2,13 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+/*import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;*/
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Random;
-
+//import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -15,43 +18,67 @@ public class GamePanel extends JPanel implements KeyListener {
         final Paddle paddle1;
         // Right paddle
         final Paddle paddle2;
+
         final Lines Horizontal_Line;
         final Ball ball;
         int Velocity = 3;
         Random random = new Random();
 
-        JLabel Score1 = new JLabel("0");
-        JLabel Score2 = new JLabel("0");
+        JLabel Score1 = new JLabel("0  "); // Display score for player 1
+        JLabel Score2 = new JLabel("0"); // Display score for player 2
 
-        int p1Score = 0;
-        int p2Score = 0;
+        int p1Score = 0; // Score for player 1
+        int p2Score = 0; // Score for player 2
 
         int xVelocity = Velocity;  // Horizontal velocity of ball
         int yVelocity = Velocity;  // Vertical velocity of ball
         
         boolean running = false;
 
+        JLabel WinnerMessage = new JLabel();
+
+        sEffects sound = new sEffects();
+		
+		public void playMusic(int i){
+			sound.setFile(i);
+			sound.Play();
+			sound.Loop();
+		}
+		
+		public void stopMusic(int i){
+			sound.stop();
+		}
+		
+		public void playSE(int i){
+			sound.setFile(i);
+			sound.Play();
+		}
+
         GamePanel() {
             paddle1 = new Paddle(0, 200, 13, 100, Color.red);
             paddle2 = new Paddle(775, 200, 25, 100, Color.blue);
             Horizontal_Line = new Lines(0, 250, 800, 1, Color.white);
             ball = new Ball(395, 245, 10, 10, Color.white);
-            //setBackground(new Color(105,160,95));
+
+            WinnerMessage.setVisible(false);
+            WinnerMessage.setForeground(new Color(57, 255, 20));
+            WinnerMessage.setFont(new Font("Calibri", Font.BOLD, 50));
+            add(WinnerMessage);
+
             setBackground(Color.black);
             setSize(800, 500);
-            //setPreferredSize(new Dimension(700, 400));
             Score1.setBounds(0,0,50,50);
-            Score1.setForeground(Color.white);
+            Score1.setForeground(new Color(255, 49, 49));
             Score1.setFont(new Font("Calibri", Font.BOLD, 30));
+
             Score2.setBounds(780, 0, 50, 50);
-            Score2.setForeground(Color.white);
+            Score2.setForeground(new Color(80, 200, 230));
             Score2.setFont(new Font("Calibri", Font.BOLD, 30));
+
             add(Score1);
             add(Score2);
             setFocusable(true);
             addKeyListener(this);
-            //addKeyListener(paddle1);
-            //addKeyListener(paddle2);
         }
 
         // Moves the ball by changing coordinates and calls the move method from Paddle
@@ -62,7 +89,7 @@ public class GamePanel extends JPanel implements KeyListener {
             paddle2.Move();
         }
 
-        public void Collision() {
+        public void collision() {
             // Check if paddle goes off screen
             if (paddle1.y <= 0)
                 paddle1.y = 0;
@@ -83,35 +110,54 @@ public class GamePanel extends JPanel implements KeyListener {
                 yVelocity = Velocity;
                 paddle1.y = 200;
                 paddle2.y = 200;
-                /*score.P1Score++;
-                score.P2Score++;*/
             }
 
             // Reverse direction if the circle reaches the panel's boundaries
             if (ball.y + 50 >= getHeight() || ball.y < 0) {
                 yVelocity *= -1;
+                playSE(2); //sound effect
             }
 
             // Reverse direction when ball collides with paddles
             if (ball.intersects(paddle1) || ball.intersects(paddle2)) {
                 xVelocity *= -1;
-                if (xVelocity > 0)
-                    xVelocity++;
-                else 
-                    xVelocity--;
+                if (xVelocity > 0) {
+                    if (xVelocity <= 11) {
+                        xVelocity++;
+                    }
+                } else {
+                    if (xVelocity >= -11) { 
+                        xVelocity--;
+                    }
+                }
+                playSE(2); //sound effect
             }
     
             repaint();
         }
 
+        public void winner() {
+            if (p1Score == 11) {
+                WinnerMessage.setVisible(true);
+                WinnerMessage.setText("Player 1 wins!");
+                running = true;
+            } else if (p2Score == 11) {
+                WinnerMessage.setVisible(true);
+                WinnerMessage.setText("Player 2 wins!");
+                running = true;
+            }
+        }
+
         public void scoreCount() {
             if (ball.x <= 0) {
                 p2Score++;
-                Score2.setText("" + p2Score);
+                Score2.setText("" + p2Score + "  ");
+                playSE(3); //sound effect
             }
             if (ball.x + 10 >= 800) {
                 p1Score++;
                 Score1.setText("" + p1Score);
+                playSE(3); //sound effect
             }
         }
 
@@ -133,7 +179,7 @@ public class GamePanel extends JPanel implements KeyListener {
             g2d.setColor(ball.color);
             g2d.fillOval(ball.x, ball.y, ball.width, ball.height);
 
-        }
+        }   
 
 
         @Override
@@ -146,8 +192,8 @@ public class GamePanel extends JPanel implements KeyListener {
         public void keyPressed(KeyEvent e) {
             // TODO Auto-generated method stub
             switch (e.getKeyCode()) {
-                    // Move the left paddle up when the up arrow is pressed
                 case KeyEvent.VK_UP:
+                    // Move the left paddle up when the up arrow is pressed
                     paddle2.yDirection(-10);
                     paddle2.Move(); // Move up
                     break;
@@ -166,6 +212,12 @@ public class GamePanel extends JPanel implements KeyListener {
                     paddle1.yDirection(10);
                     paddle1.Move(); // Move down
                     break;
+                case KeyEvent.VK_ESCAPE:
+                    // Escape button to stop the game loop
+                    running = true;
+                    setVisible(false);
+                    // setVisible(false);
+                    break;
             }
         }
 
@@ -174,8 +226,8 @@ public class GamePanel extends JPanel implements KeyListener {
             // TODO Auto-generated method stub
             System.out.println(e.getKeyCode());
             switch (e.getKeyCode()) {
-                    // Right paddle stops moving when the up arrow is released
                 case KeyEvent.VK_UP:
+                    // Right paddle stops moving when the up arrow is released
                     paddle2.yDirection(0);
                     paddle2.Move();
                     break;
@@ -193,10 +245,6 @@ public class GamePanel extends JPanel implements KeyListener {
                     // Left paddle stops moving when the s button is released
                     paddle1.yDirection(0);
                     paddle1.Move();
-                    break;
-                case KeyEvent.VK_ESCAPE:
-                    running = true;
-                    setVisible(false);
                     break;
             }
         }
