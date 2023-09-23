@@ -79,7 +79,7 @@ public class GamePanel extends JPanel implements KeyListener {
             add(Score2);
             setFocusable(true);
             addKeyListener(this);
-
+            
             playMusic(0);
         }
 
@@ -153,12 +153,12 @@ public class GamePanel extends JPanel implements KeyListener {
         public void scoreCount() {
             if (ball.x <= 0) {
                 p2Score++;
-                Score2.setText("" + p2Score + "  ");
+                Score2.setText("" + p2Score);
                 playSE(3); //sound effect
             }
             if (ball.x + 10 >= 800) {
                 p1Score++;
-                Score1.setText("" + p1Score);
+                Score1.setText("" + p1Score + "  ");
                 playSE(3); //sound effect
             }
         }
