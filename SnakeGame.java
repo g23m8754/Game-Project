@@ -1,7 +1,4 @@
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -27,8 +24,7 @@ public class SnakeGame extends JPanel implements KeyListener {
     private static final int DELAY = 140; // Delay in milliseconds for the game loop
     private static final int SPECIAL_DELAY = 5000; // 5 seconds in milliseconds
     private Random random = new Random();
-    private int SPECIAL_APPLE_LIFETIME = SPECIAL_DELAY;
-    //private static int SPECIAL_APPLE_LIVES = 1;
+    private static int SPECIAL_APPLE_LIFETIME = SPECIAL_DELAY;
 
     public SnakeGame() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -38,7 +34,7 @@ public class SnakeGame extends JPanel implements KeyListener {
         StartGame();
         Timer timer = new Timer(DELAY, e -> gameLoop());
         timer.start();
-        Timer specialAppleTimer = new Timer(SPECIAL_DELAY, e -> respawnSpecialApple());
+        Timer specialAppleTimer = new Timer(SPECIAL_DELAY, e -> SpawnSpecialApple());
         specialAppleTimer.start();
     }
 
@@ -49,15 +45,13 @@ public class SnakeGame extends JPanel implements KeyListener {
         Point initialPosition = new Point(WIDTH / 2, HEIGHT / 2);
         snakePositions.add(initialPosition);
         randomize(applePosition, 0, (WIDTH / size - 1) * size, 0, (HEIGHT / size - 1) * size);
-        randomize(specialApple, 0, (WIDTH / size - 1) * size, 0, (HEIGHT / size - 1) * size);
-        
-        
     }
 
-    public void respawnSpecialApple() {
+    public void SpawnSpecialApple() {
         randomize(specialApple, 0, (WIDTH / size - 1) * size, 0, (HEIGHT / size - 1) * size);
         SPECIAL_APPLE_LIFETIME = SPECIAL_DELAY;
     }
+
 
     public void randomize(Point position, int minX, int maxX, int minY, int maxY) {
         position.x = random.nextInt((maxX - minX) / size) * size + minX;
@@ -73,15 +67,23 @@ public class SnakeGame extends JPanel implements KeyListener {
         if (gameover) {
             return;
         }
+
+        if (SPECIAL_APPLE_LIFETIME <= 0) {
+            specialApple.setLocation(-1, -1); // Special apple disappears
+        }
     
-        Point newHead = new Point(snakePositions.get(0).x + snakeDirection.x * size,snakePositions.get(0).y + snakeDirection.y * size);
+        Point newHead = new Point(snakePositions.get(0).x + snakeDirection.x * size, snakePositions.get(0).y + snakeDirection.y * size);
     
         // Check if the new head position is equal to the apple position
-        if (newHead.equals(applePosition) || newHead.equals(specialApple)){
+        if (newHead.equals(applePosition)) {
             score++;
             snakePositions.add(0, newHead);
             // Generate a new random position for the apple
             randomize(applePosition, 0, (WIDTH / size - 1) * size, 0, (HEIGHT / size - 1) * size);
+        } else if (newHead.equals(specialApple)) {
+            score += 2;
+            snakePositions.add(0, newHead);
+          
         } else {
             snakePositions.add(0, newHead);
             snakePositions.remove(snakePositions.size() - 1);
@@ -100,14 +102,25 @@ public class SnakeGame extends JPanel implements KeyListener {
             }
         }
     
+        // Check if the score is divisible by 5 to make the special apple appear
+        if (score % 5 == 0 && SPECIAL_APPLE_LIFETIME > 0) {
+            SPECIAL_APPLE_LIFETIME-=100;
+            //randomize(specialApple, 0, (WIDTH / size - 1) * size, 0, (HEIGHT / size - 1) * size); // Generate a new special apple
+        }
+    
         repaint();
     }
+    
+
     
 
     
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        // Cast Graphics to Graphics2D to use setStroke
+        Graphics2D g2d = (Graphics2D) g;
 
         // Draw score
         g.setColor(Color.WHITE);
@@ -118,7 +131,7 @@ public class SnakeGame extends JPanel implements KeyListener {
         g.fillOval(applePosition.x, applePosition.y, size, size);
 
         // Draw SpecialApple in blue if score is a multiple of 5 and its lifetime has not expired
-       if (score % 5 == 0 && score!= 0 && SPECIAL_APPLE_LIFETIME > 0 ) {
+        if (score % 5 == 0 && score != 0 && SPECIAL_APPLE_LIFETIME > 0) {
             g.setColor(Color.BLUE);
             g.fillOval(specialApple.x, specialApple.y, size, size);
         }
@@ -129,14 +142,22 @@ public class SnakeGame extends JPanel implements KeyListener {
             g.fillOval(position.x, position.y, size, size);
         }
 
+        // Set the thickness for the border lines
+        Stroke sk = g2d.getStroke();
+        g2d.setStroke(new BasicStroke(6.0f)); 
+        // Draw border lines
+        g.setColor(Color.BLACK); // set the color of the boarder lines
+        g.drawRect(0, 0, WIDTH - 1, HEIGHT - 1); // Draw a rectangle around the entire panel
+
+        // Restore the previous stroke
+        g2d.setStroke(sk);
 
         if (gameover) {
             g.setColor(Color.WHITE);
             g.drawString("Game Over", WIDTH / 2 - 40, HEIGHT / 2);
         }
     }
-
-
+        
     @Override
     public void keyTyped(KeyEvent e) {
     }
