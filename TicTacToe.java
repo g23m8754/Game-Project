@@ -3,7 +3,7 @@ import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 
-public class TicTacToe implements ActionListener{ 
+public class TicTacToe implements ActionListener{ //implements an interface
 	
 	//initialising a frame, panel, and label
 	Random random = new Random();
@@ -26,7 +26,7 @@ public class TicTacToe implements ActionListener{
 		text.setForeground(new Color(57,255,20));
 		text.setFont(new Font("Ink Free", Font.BOLD,75));
 		text.setHorizontalAlignment(JLabel.CENTER);
-		text.setText("Tic Wars!");
+		text.setText("Tic Tac Toe!");
 		text.setOpaque(true);
 		
 		title_panel.setLayout(new BorderLayout());
@@ -49,12 +49,10 @@ public class TicTacToe implements ActionListener{
 		frame.add(title_panel,BorderLayout.NORTH); //sticks title panel to the top of the border
 		frame.add(button_panel);
 		
-		
-		
-		
 		fTurn();
 	}
 	
+	@Override
 	public void actionPerformed(ActionEvent e){ //Determines which player just put their sign down then hands over the turn to the other player
 		for (int y = 0; y < 9; y++){
 			if (e.getSource() == buttons[y]){
@@ -108,22 +106,111 @@ public class TicTacToe implements ActionListener{
 			   xWins(6,7,8);//winning combo
 			   }
 		
-		if((buttons[1].getText() == "X") &&  //checks if the third row has matching X's
+		if((buttons[1].getText() == "X") && 
 		   (buttons[4].getText() == "X") && 
 		   (buttons[7].getText() == "X")){
 			   xWins(1,4,7);//winning combo
 			   }
 		
-			
+		if((buttons[0].getText() == "X") &&  
+		   (buttons[3].getText() == "X") && 
+		   (buttons[6].getText() == "X")){
+			   xWins(1,3,6);//winning combo
+			   }
+			   
+		if((buttons[2].getText() == "X") &&  
+		   (buttons[5].getText() == "X") && 
+		   (buttons[8].getText() == "X")){
+			   xWins(2,5,8);//winning combo
+			   }
+		
+		
+		if((buttons[0].getText() == "X") &&  
+		   (buttons[4].getText() == "X") && 
+		   (buttons[8].getText() == "X")){
+			   xWins(0,4,8);//winning combo
+			   }
+			   
+		if((buttons[2].getText() == "X") &&  //checks if the third row has matching X's
+		   (buttons[4].getText() == "X") && 
+		   (buttons[6].getText() == "X")){
+			   xWins(2,4,6);//winning combo
+			   }
+			   
+        if((buttons[0].getText() == "O") &&  //checks if the first row has matching X's
+		   (buttons[1].getText() == "O") && 
+		   (buttons[2].getText() == "O")){
+			   oWins(0,1,2);//winning combo
+			   }
+			   
+		if((buttons[3].getText() == "O") &&  //checks if the second row has matching X's
+		   (buttons[4].getText() == "O") && 
+		   (buttons[5].getText() == "O")){
+				oWins(3,4,5);//winning combo
+				}
+				
+		if((buttons[6].getText() == "O") &&  //checks if the third row has matching X's
+		   (buttons[7].getText() == "O") && 
+		   (buttons[8].getText() == "O")){
+			   oWins(6,7,8);//winning combo
+			   }
+		
+		if((buttons[1].getText() == "O") && 
+		   (buttons[4].getText() == "O") && 
+		   (buttons[7].getText() == "O")){
+			   oWins(1,4,7);//winning combo
+			   }
+		
+		if((buttons[0].getText() == "O") &&  
+		   (buttons[3].getText() == "O") && 
+		   (buttons[6].getText() == "O")){
+			   oWins(1,3,6);//winning combo
+			   }
+			   
+		if((buttons[2].getText() == "O") &&  
+		   (buttons[5].getText() == "O") && 
+		   (buttons[8].getText() == "O")){
+			   oWins(2,5,8);//winning combo
+			   }
+		
+		
+		if((buttons[0].getText() == "O") &&  
+		   (buttons[4].getText() == "O") && 
+		   (buttons[8].getText() == "O")){
+			   oWins(0,4,8);//winning combo
+			   }
+			   
+		if((buttons[2].getText() == "O") &&  //checks if the third row has matching X's
+		   (buttons[4].getText() == "O") && 
+		   (buttons[6].getText() == "O")){
+			   oWins(2,4,6);//winning combo
+			   }
+			    
 		
 	}
 	
 	public void xWins(int x, int y, int z){
+		buttons[x].setBackground(Color.BLUE);
+		buttons[y].setBackground(Color.BLUE);
+		buttons[z].setBackground(Color.BLUE);
 		
+		for (int a = 0; a < 9; a++){
+			buttons[a].setEnabled(false);
+		}
+		text.setText("X Wins!");
 	}
+	
+	
 	
 	public void oWins(int x, int y, int z){
+		buttons[x].setBackground(Color.BLUE);
+		buttons[y].setBackground(Color.BLUE);
+		buttons[z].setBackground(Color.BLUE);
 		
+		for (int a = 0; a < 9; a++){
+			buttons[a].setEnabled(false);
+		}
+		text.setText("O Wins!");
 	}
-	
+	 
 }
