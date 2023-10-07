@@ -2,7 +2,7 @@ Group name: The 404's
 Group members: Kyle Nkomo, Munashe Madziwanyika, Annette Nyirenda, Keith Dube, Liso Mafu.
 Group mentor: Gosego Kopane
 Project title: 404 Arcade
-Project page: ---
+Project page: https://github.com/g23m8754/Game-Project/tree/main
 
 Instructions for use: double click the executable icon. The program will have buttons for quitting from each game to the main menu screen. The ping pong game uses the                        WASD keys and arrow keys for moving the paddles up and down the frame when playing. When running the ping pong game you have to input the                               winning number of points you want in the little box. The snake game uses the arrow keys for the snake to move around. The tic tac toe game just                         needs you touse the mouse to click the buttons on the grid to add the X or O.
 Tools used: no external tools or libraries were used, just Java.
