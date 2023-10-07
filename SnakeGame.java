@@ -1,39 +1,37 @@
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-
 import java.util.ArrayList;
 import java.util.Random;
-
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 public class SnakeGame extends JPanel implements KeyListener {
     boolean gameover = false;
-    int size = 20; // size of each object in the game i.e snake's head and apple
+    int size = 25; // size of each object in the game i.e snake's head and apple
     ArrayList<Point> snakePositions = new ArrayList<Point>(); // tracks all the positions of the snake's head to tail
     Point snakeDirection = new Point(1, 0); // tracks direction of the snake's head
     Point applePosition = new Point(0, 0); // Specifies the position of the apple
     Point specialApple = new Point(0, 0); // Specifies the position of the special apple
     int score = 0;
 
-    private static final int WIDTH = 600;
-    private static final int HEIGHT = 600;
+    private static final int WIDTH = 500;
+    private static final int HEIGHT = 500;
     private static final int DELAY = 140; // Delay in milliseconds for the game loop
     private static final int SPECIAL_DELAY = 5000; // 5 seconds in milliseconds
     private Random random = new Random();
     private boolean specialAppleVisible = false;
     private Timer specialAppleTimer;
     private JButton playAgainButton;
+    JButton Quit = new JButton("Quit");
+
 
 
     // Create two timers for special apple logic
@@ -42,23 +40,37 @@ public class SnakeGame extends JPanel implements KeyListener {
 
     sEffects sound = new sEffects();
 	
-	/*public void playSE(int s){
+	public void playSE(int s){
 		sound.setFile(s);
 		sound.Play();
-    }*/
+    }
     
     public SnakeGame() {
-        setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        setBackground(Color.GREEN);
+        setBounds(150, 0, WIDTH, HEIGHT);
+        setBackground(Color.decode("#69B41E"));
         setFocusable(true);
         addKeyListener(this);
         StartGame();
         Timer timer = new Timer(DELAY, e -> gameLoop());
         timer.start();
+        setLayout(null);
+
+        // Initialize the quit button
+        Quit.setFont(new Font("MV Boli", Font.BOLD, 15));
+        Quit.setBounds(30, 18, 70, 30);
+        Quit.setBackground(Color.decode("#94B447"));
+        Quit.setForeground(Color.WHITE);
+        Quit.setBorderPainted(false);
+        Quit.setOpaque(false);
+        add(Quit);
 
         // Initialize the play again button
         playAgainButton = new JButton("Play Again");
-        playAgainButton.setBounds(WIDTH / 2 - 50, HEIGHT / 2 + 30, 100, 30);
+        playAgainButton.setBounds(WIDTH / 2 - 75, HEIGHT / 2 - 15, 150, 30);
+        playAgainButton.setBackground(Color.decode("#69B41E"));
+        playAgainButton.setFont(new Font("MV Boli", Font.BOLD, 15));
+        playAgainButton.setForeground(Color.WHITE);
+        playAgainButton.setBorderPainted(false);
         playAgainButton.addActionListener(e -> handlePlayAgain());
 
         // Add the button to the panel but initially set it as invisible
@@ -142,13 +154,13 @@ public class SnakeGame extends JPanel implements KeyListener {
         // Check if the new head position is equal to the apple position
         if (newHead.equals(applePosition)) {
             score++;
-            //playSE(5);
+            playSE(5);
             snakePositions.add(0, newHead);
             // Generate a new random position for the apple
             randomize(applePosition, 0, (WIDTH / size - 1) * size, 0, (HEIGHT / size - 1) * size);
         } else if (newHead.equals(specialApple)) {
             score += 2;
-            //playSE(5);
+            playSE(5);
             snakePositions.add(0, newHead);
             specialAppleVisible = false; // Special apple is consumed
             specialAppleTimer.setDelay(SPECIAL_DELAY); // Reset the timer delay
@@ -159,14 +171,14 @@ public class SnakeGame extends JPanel implements KeyListener {
 
         // Check for collision with the wall
         if (newHead.x < 0 || newHead.x >= WIDTH || newHead.y < 0 || newHead.y >= HEIGHT) {
-            //playSE(2);
+            playSE(2);
             endGame();
         }
 
         // Check for collision with itself
         for (int i = 1; i < snakePositions.size(); i++) {
             if (newHead.equals(snakePositions.get(i))) {
-                //playSE(3);
+                playSE(3);
                 endGame();
                 break;
             }
@@ -185,7 +197,8 @@ public class SnakeGame extends JPanel implements KeyListener {
 
         // Draw score
         g.setColor(Color.WHITE);
-        g.drawString("Score: " + score, 10, 20);
+        g.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+        g.drawString("Score: " + score, 220, 25);
 
         // Draw the apple in red
         g.setColor(Color.RED);
@@ -238,14 +251,4 @@ public class SnakeGame extends JPanel implements KeyListener {
     public void keyReleased(KeyEvent e) {
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Snake Game");
-            frame.add(new SnakeGame());
-            frame.pack();
-            frame.setResizable(false);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setVisible(true);
-        });
-    }
 }

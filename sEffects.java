@@ -18,11 +18,12 @@ public class sEffects{
 		soundURL[1] = getClass().getResource("ball_off_paddles.wav");
 		soundURL[2] = getClass().getResource("ball_off_wall.wav");
 		soundURL[3] = getClass().getResource("scoring_point.wav");
-		soundURL[4] = getClass().getResource("winner_announced.wav");		
+		soundURL[4] = getClass().getResource("winner_announced.wav");	
+        soundURL[5] = getClass().getResource("eat.wav");		
 	}
 
 
-	public static void setFile(int x) {
+	public void setFile(int x) {
         try{
             AudioInputStream audio = AudioSystem.getAudioInputStream(soundURL[x]);
             clip = AudioSystem.getClip();
@@ -33,15 +34,15 @@ public class sEffects{
     }
 
 
-    public static void Play(){
+    public void Play(){
         clip.start();
     }
 
-    public static void Loop(){
+    public void Loop(){
         clip.loop(Clip.LOOP_CONTINUOUSLY);
     }
 
-    public static void stop(){
+    public void stop(){
         clip.stop();
     }
 
