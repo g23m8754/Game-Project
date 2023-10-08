@@ -5,12 +5,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-
 import java.util.ArrayList;
 import java.util.Random;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -28,33 +28,28 @@ public class SnakeGame extends JPanel implements KeyListener {
 
     private static final int WIDTH = 600;
     private static final int HEIGHT = 600;
-    private static final int DELAY = 140; // Delay in milliseconds for the game loop
-    private static final int SPECIAL_DELAY = 5000; // 5 seconds in milliseconds
+    private static final int DELAY = 120; // Delay in milliseconds for the game loop
+    private static final int SPECIAL_TIMER = 60000; // 60 seconds in milliseconds
+    private static final int SPECIAL_DURATION = 10000; // 10 seconds in milliseconds
     private Random random = new Random();
     private boolean specialAppleVisible = false;
-    private Timer specialAppleTimer;
     private JButton playAgainButton;
-
-
-    // Create two timers for special apple logic
+    private Timer gameTimer;
     private Timer specialAppleSpawnTimer;
-    private Timer specialAppleDisappearTimer;
 
-    sEffects sound = new sEffects();
-	
-	/*public void playSE(int s){
-		sound.setFile(s);
-		sound.Play();
-    }*/
-    
     public SnakeGame() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.GREEN);
         setFocusable(true);
         addKeyListener(this);
-        StartGame();
-        Timer timer = new Timer(DELAY, e -> gameLoop());
-        timer.start();
+        startGame();
+
+        gameTimer = new Timer(DELAY, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gameLoop();
+            }
+        });
+        gameTimer.start();
 
         // Initialize the play again button
         playAgainButton = new JButton("Play Again");
@@ -66,19 +61,17 @@ public class SnakeGame extends JPanel implements KeyListener {
         add(playAgainButton);
 
         // Create the timer for spawning the special apple every 60 seconds
-        specialAppleSpawnTimer = new Timer(60 * 1000, e -> SpawnSpecialApple());
+        specialAppleSpawnTimer = new Timer(SPECIAL_TIMER, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                spawnSpecialApple();
+            }
+        });
         specialAppleSpawnTimer.setRepeats(true);
         specialAppleSpawnTimer.start();
-
-        // Create the timer for making the special apple disappear after 10 seconds
-        specialAppleDisappearTimer = new Timer(10 * 1000, e -> handleSpecialAppleTimer());
-        specialAppleDisappearTimer.setRepeats(false);
-        specialAppleDisappearTimer.start();
-
-        specialAppleTimer = new Timer(SPECIAL_DELAY, e -> handleSpecialAppleTimer());
     }
 
-    public void StartGame() {
+    public void startGame() {
         gameover = false;
         score = 0;
         snakePositions.clear();
@@ -88,36 +81,32 @@ public class SnakeGame extends JPanel implements KeyListener {
     }
 
     public void handlePlayAgain() {
-        StartGame();
+        startGame();
         gameover = false;
         playAgainButton.setVisible(false);
         requestFocus();
     }
 
-    public void SpawnSpecialApple() {
+    public void spawnSpecialApple() {
         randomize(specialApple, 0, (WIDTH / size - 1) * size, 0, (HEIGHT / size - 1) * size);
         specialAppleVisible = true;
-        specialAppleTimer.setDelay(SPECIAL_DELAY); // Reset the timer delay
 
-        // Reset the special apple spawn timer for another 60 seconds
-        specialAppleSpawnTimer.restart();
-
-        // Start the special apple disappearance timer (it will automatically call handleSpecialAppleTimer)
+        // Create a timer for making the special apple disappear after 10 seconds
+        Timer specialAppleDisappearTimer = new Timer(SPECIAL_DURATION, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleSpecialAppleTimer();
+            }
+        });
+        specialAppleDisappearTimer.setRepeats(false);
         specialAppleDisappearTimer.start();
     }
-    
 
     public void handleSpecialAppleTimer() {
         if (specialAppleVisible) {
             specialAppleVisible = false;
-            specialAppleTimer.setDelay(SPECIAL_DELAY); // Reset the timer delay
-            randomize(specialApple, 0, (WIDTH / size - 1) * size, 0, (HEIGHT / size - 1) * size);
-
-            // Stop the special apple spawn timer
-            specialAppleSpawnTimer.stop();
         }
     }
-    
 
     public void randomize(Point position, int minX, int maxX, int minY, int maxY) {
         position.x = random.nextInt((maxX - minX) / size) * size + minX;
@@ -129,9 +118,7 @@ public class SnakeGame extends JPanel implements KeyListener {
         playAgainButton.setVisible(true);
         repaint();
     }
-    
 
-    // Inside the gameLoop method:
     public void gameLoop() {
         if (gameover) {
             return;
@@ -142,16 +129,12 @@ public class SnakeGame extends JPanel implements KeyListener {
         // Check if the new head position is equal to the apple position
         if (newHead.equals(applePosition)) {
             score++;
-            //playSE(5);
             snakePositions.add(0, newHead);
-            // Generate a new random position for the apple
             randomize(applePosition, 0, (WIDTH / size - 1) * size, 0, (HEIGHT / size - 1) * size);
         } else if (newHead.equals(specialApple)) {
             score += 2;
-            //playSE(5);
             snakePositions.add(0, newHead);
             specialAppleVisible = false; // Special apple is consumed
-            specialAppleTimer.setDelay(SPECIAL_DELAY); // Reset the timer delay
         } else {
             snakePositions.add(0, newHead);
             snakePositions.remove(snakePositions.size() - 1);
@@ -159,14 +142,12 @@ public class SnakeGame extends JPanel implements KeyListener {
 
         // Check for collision with the wall
         if (newHead.x < 0 || newHead.x >= WIDTH || newHead.y < 0 || newHead.y >= HEIGHT) {
-            //playSE(2);
             endGame();
         }
 
         // Check for collision with itself
         for (int i = 1; i < snakePositions.size(); i++) {
             if (newHead.equals(snakePositions.get(i))) {
-                //playSE(3);
                 endGame();
                 break;
             }
@@ -174,7 +155,6 @@ public class SnakeGame extends JPanel implements KeyListener {
 
         repaint();
     }
-
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -191,8 +171,8 @@ public class SnakeGame extends JPanel implements KeyListener {
         g.setColor(Color.RED);
         g.fillOval(applePosition.x, applePosition.y, size, size);
 
-        // Draw SpecialApple in blue if score is a multiple of 5 and it's visible
-        if (score % 5 == 0 && score != 0 && specialAppleVisible) {
+        // Draw the special apple in blue if it's visible
+        if (specialAppleVisible) {
             g.setColor(Color.BLUE);
             g.fillOval(specialApple.x, specialApple.y, size, size);
         }
@@ -205,9 +185,9 @@ public class SnakeGame extends JPanel implements KeyListener {
 
         // Set the thickness for the border lines
         Stroke sk = g2d.getStroke();
-        g2d.setStroke(new BasicStroke(6.0f)); 
+        g2d.setStroke(new BasicStroke(6.0f));
         // Draw border lines
-        g.setColor(Color.BLACK); // set the color of the boarder lines
+        g.setColor(Color.BLACK); // set the color of the border lines
         g.drawRect(0, 0, WIDTH - 1, HEIGHT - 1); // Draw a rectangle around the entire panel
 
         // Restore the previous stroke
@@ -249,3 +229,4 @@ public class SnakeGame extends JPanel implements KeyListener {
         });
     }
 }
+
