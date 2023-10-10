@@ -183,11 +183,11 @@ public class PingPongPanel extends JPanel implements KeyListener {
             if (ball.intersects(paddle1) || ball.intersects(paddle2)) {
                 xVelocity *= -1;
                 if (xVelocity > 0) {
-                    if (xVelocity <= 13) {
+                    if (xVelocity <= 11) {
                         xVelocity++;
                     }
                 } else {
-                    if (xVelocity >= -13) { 
+                    if (xVelocity >= -11) { 
                         xVelocity--;
                     }
                 }
